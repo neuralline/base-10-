@@ -1,0 +1,2 @@
+overrides:
+  cyre: link:../../../Library/pnpm/global/5/node_modules/cyre

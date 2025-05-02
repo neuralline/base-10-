@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <style>
+      body {
+        background: #000;
+        color: #fff;
+        font-family: monospace;
+        display: grid;
+        place-items: center;
+        min-height: 100vh;
+        margin: 0;
+      }
+
+      .clock-container {
+        background: #111;
+        padding: 0.1rem;
+        border-radius: 1rem;
+        text-align: center;
+        max-width: 800px;
+        width: 100%;
+      }
+
+      .clock-display {
+        font-size: 7.5rem;
+        font-weight: bold;
+        padding: 1.4rem;
+
+        display: flex;
+        text-align: center;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .colon {
+        color: #444;
+        margin: -22px auto 0;
+      }
+
+      .dot {
+        display: none;
+      }
+
+      .milliseconds {
+        display: none;
+      }
+
+      .standard-time {
+        display: inline-block;
+
+        color: #666;
+        font-size: 1rem;
+        vertical-align: middle;
+      }
+
+      .progress-container {
+        margin-top: 2rem;
+        padding: 1rem;
+        background: #1a1a1a;
+        border-radius: 0.2rem;
+      }
+
+      .progress-bar {
+        height: 5px;
+        background: #2e2d2d;
+        border-radius: 10px;
+        overflow: hidden;
+        position: relative;
+      }
+
+      .progress-fill {
+        height: 100%;
+        background: #3498db;
+        transition: width 0.3s ease;
+      }
+
+      .stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-top: 2rem;
+        text-align: left;
+        padding: 1rem;
+        background: #1a1a1a;
+        border-radius: 0.5rem;
+      }
+
+      .stat-item {
+        padding: 0.5rem;
+      }
+
+      .stat-label {
+        color: #666;
+        font-size: 0.8rem;
+        margin-bottom: 0.25rem;
+      }
+
+      .stat-value {
+        color: #3498db;
+        font-size: 1.1rem;
+      }
+
+      .info {
+        margin: 1rem;
+        color: #444;
+        line-height: 1.5;
+        font-size: 0.9rem;
+        text-align: left;
+        padding: 10px;
+        border-radius: 20px;
+      }
+
+      @keyframes pulse {
+        0% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.5;
+        }
+        100% {
+          opacity: 1;
+        }
+      }
+
+      .active-indicator {
+        display: inline-block;
+        width: 8px;
+        height: 8px;
+        background: #2ecc71;
+        border-radius: 50%;
+        margin-left: 8px;
+        animation: pulse 2s infinite;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="clock-container">
+      <div class="info">
+        <span
+          >The Base-10 Timer is an exciting exploration of time measurement,
+          offering a fresh perspective on how we track and understand time.
+          Whether you're a developer, a time enthusiast, or just curious about
+          new concepts!</span
+        >
+      </div>
+      <div class="clock-display">
+        <span id="hours">00</span>
+        <span class="colon">:</span>
+        <span id="minutes">00</span>
+        <span class="colon">:</span>
+        <span id="seconds">00</span>
+        <span class="dot">.</span>
+        <span id="millis" class="milliseconds">000</span>
+      </div>
+
+      <div class="standard-time">
+        Standard Time: <span id="standard-time">00:00:00</span>
+        <span class="active-indicator"></span>
+      </div>
+
+      <div class="progress-container">
+        <div class="progress-bar">
+          <div id="day-progress" class="progress-fill"></div>
+        </div>
+        <div id="progress-text" style="margin-top: 0.5rem; color: #666"></div>
+      </div>
+
+      <div class="stats">
+        <div class="stat-item">
+          <div class="stat-label">Base-10 Hour</div>
+          <div id="decimal-hour" class="stat-value">0.00</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-label">Standard Hours</div>
+          <div id="standard-hours" class="stat-value">0.00</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-label">Day Progress</div>
+          <div id="day-percentage" class="stat-value">0.00%</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-label">Time Scale</div>
+          <div id="time-scale" class="stat-value">1h = 2.78 Std Hours</div>
+        </div>
+      </div>
+
+      <div class="info">
+        Base 10, Decimal or Metrics timer! in the world where time is in
+        multiples of 10:<br />
+        <br />
+        1 Second: Remains the same as the standard second.<br />
+        1 Minute: Equivalent to 100 seconds (approximately 1.7 standard
+        minutes).<br />
+        1 Hour: Equivalent to 100 minutes (approximately 2.8 standard hours).<br />
+        1 Day: Remains the same as the standard 24 hours.
+        <br />
+      </div>
+    </div>
+
+    <script type="module">
+      import { cyre } from "cyre";
+
+      const elements = {
+        hours: document.getElementById("hours"),
+        minutes: document.getElementById("minutes"),
+        seconds: document.getElementById("seconds"),
+        millis: document.getElementById("millis"),
+        standardTime: document.getElementById("standard-time"),
+        dayProgress: document.getElementById("day-progress"),
+        progressText: document.getElementById("progress-text"),
+        decimalHour: document.getElementById("decimal-hour"),
+        standardHours: document.getElementById("standard-hours"),
+        dayPercentage: document.getElementById("day-percentage"),
+        timeScale: document.getElementById("time-scale"),
+      };
+
+      const SECOND = 1000; // 1 second = 1000ms (unchanged)
+      const NEW_MINUTE = SECOND * 100; // 1 new minute = 100 seconds
+      const NEW_HOUR = NEW_MINUTE * 100; // 1 new hour = 100 new minutes
+      const DAY = 24 * 60 * 60 * 1000; // Standard day length in ms
+      const DECIMAL_HOURS_PER_DAY = 8.64; // 24 / 2.78
+      const DECIMAL_SECONDS_PER_DAY = 86400; // 24 * 60 * 60
+      const DECIMAL_MINUTES_PER_DAY = 864; // 24 * 60
+
+      const calculateBase10Time = () => {
+        const now = new Date();
+        const midnight = new Date(now);
+        midnight.setHours(0, 0, 0, 0);
+
+        const msSinceMidnight = now.getTime() - midnight.getTime();
+
+        // Calculate decimal time with improved precision
+        const totalDecimalSeconds = msSinceMidnight / SECOND;
+        const exactDecimalHours =
+          (totalDecimalSeconds / DECIMAL_SECONDS_PER_DAY) *
+          DECIMAL_HOURS_PER_DAY;
+
+        // Calculate hours, minutes, seconds with better precision
+        const hours = Math.floor(exactDecimalHours);
+        const decimalMinutes = (exactDecimalHours - hours) * 100;
+        const minutes = Math.floor(decimalMinutes);
+        const decimalSeconds = (decimalMinutes - minutes) * 100;
+        const seconds = Math.floor(decimalSeconds);
+        const ms = Math.floor((decimalSeconds - seconds) * 1000);
+
+        // Calculate additional stats with improved precision
+        const dayProgress = (msSinceMidnight / DAY) * 100;
+        const standardHours = msSinceMidnight / (60 * 60 * 1000);
+        const decimalTimeScale = DECIMAL_HOURS_PER_DAY / 24; // 0.36
+
+        return {
+          hours,
+          minutes,
+          seconds,
+          ms,
+          exactDecimalHours,
+          standardHours,
+          dayProgress,
+          decimalTimeScale,
+          standard: `${String(now.getHours()).padStart(2, "0")}:${String(
+            now.getMinutes()
+          ).padStart(2, "0")}:${String(now.getSeconds()).padStart(2, "0")}`,
+        };
+      };
+
+      const updateClock = (time) => {
+        // Update main clock display
+        elements.hours.textContent = time.hours.toString().padStart(2, "0");
+        elements.minutes.textContent = time.minutes.toString().padStart(2, "0");
+        elements.seconds.textContent = time.seconds.toString().padStart(2, "0");
+        elements.millis.textContent = time.ms.toString().padStart(3, "0");
+        elements.standardTime.textContent = time.standard;
+
+        // Update progress bar with smoother transitions
+        elements.dayProgress.style.width = `${time.dayProgress}%`;
+        elements.progressText.textContent = `Day progress: ${time.dayProgress.toFixed(
+          3
+        )}% of 8.64 decimal hours`;
+
+        // Update stats with more precise calculations
+        elements.decimalHour.textContent = `${time.exactDecimalHours.toFixed(
+          3
+        )} / ${DECIMAL_HOURS_PER_DAY}`;
+        elements.standardHours.textContent = `${time.standardHours.toFixed(
+          3
+        )} / 24.000`;
+        elements.dayPercentage.textContent = `${time.dayProgress.toFixed(3)}%`;
+        elements.timeScale.textContent = `1h = ${(
+          time.decimalTimeScale * 24
+        ).toFixed(3)} Std Hours`;
+      };
+
+      // Define actions with specific purposes
+      cyre.action({
+        id: "clock-display",
+        interval: 1000, // For smooth milliseconds display
+        repeat: 100000,
+        detectChanges: false, // Enable change detection
+      });
+
+      cyre.action({
+        id: "stats-update",
+        interval: 10100, // Less frequent updates for stats
+        repeat: 100002,
+        detectChanges: false,
+      });
+
+      // Separate concerns into different event handlers
+      cyre.on("clock-display", () => {
+        const time = calculateBase10Time();
+
+        // Update only the time display elements
+        elements.hours.textContent = time.hours.toString().padStart(2, "0");
+        elements.minutes.textContent = time.minutes.toString().padStart(2, "0");
+        elements.seconds.textContent = time.seconds.toString().padStart(2, "0");
+        elements.millis.textContent = time.ms.toString().padStart(3, "0");
+        elements.standardTime.textContent = time.standard;
+      });
+
+      cyre.on("stats-update", () => {
+        const time = calculateBase10Time();
+
+        // Update slower-changing elements
+        elements.dayProgress.style.width = `${time.dayProgress}%`;
+        elements.progressText.textContent = `Day progress: ${time.dayProgress.toFixed(
+          3
+        )}% of 8.64 decimal hours`;
+        elements.decimalHour.textContent = `${time.exactDecimalHours.toFixed(
+          3
+        )} / ${DECIMAL_HOURS_PER_DAY}`;
+        elements.standardHours.textContent = `${time.standardHours.toFixed(
+          3
+        )} / 24.000`;
+        elements.dayPercentage.textContent = `${time.dayProgress.toFixed(3)}%`;
+        elements.timeScale.textContent = `1h = ${(
+          time.decimalTimeScale * 1
+        ).toFixed(3)} standard hours`;
+
+        // Midnight check
+        const now = new Date();
+        if (
+          now.getHours() === 0 &&
+          now.getMinutes() === 0 &&
+          now.getSeconds() === 0
+        ) {
+          const initialState = {
+            hours: 0,
+            minutes: 0,
+            seconds: 0,
+            ms: 0,
+            standard: "00:00:00",
+            exactDecimalHours: 0,
+            standardHours: 0,
+            dayProgress: 0,
+          };
+          updateClock(initialState);
+        }
+      });
+
+      // Start both timers
+      cyre.call("clock-display");
+      cyre.call("stats-update");
+
+      // Add cleanup on page unload
+      window.addEventListener("unload", () => {
+        cyre.shutdown();
+      });
+    </script>
+  </body>
+</html>
