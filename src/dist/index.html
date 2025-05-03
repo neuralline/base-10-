@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <style>
+      body {
+        background: #000;
+        color: #fff;
+        font-family: monospace;
+        display: grid;
+        place-items: center;
+        min-height: 100vh;
+        margin: 0;
+      }
+
+      .clock-container {
+        background: #111;
+        padding: 0.1rem;
+        border-radius: 1rem;
+        text-align: center;
+        max-width: 800px;
+        width: 100%;
+      }
+
+      .clock-display {
+        font-size: 7.5rem;
+        font-weight: bold;
+        padding: 1.4rem;
+
+        display: flex;
+        text-align: center;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .colon {
+        color: #444;
+        margin: -22px auto 0;
+      }
+
+      .dot {
+        display: none;
+      }
+
+      .milliseconds {
+        display: none;
+      }
+
+      .standard-time {
+        display: inline-block;
+
+        color: #666;
+        font-size: 1rem;
+        vertical-align: middle;
+      }
+
+      .progress-container {
+        margin-top: 2rem;
+        padding: 1rem;
+        background: #1a1a1a;
+        border-radius: 0.2rem;
+      }
+
+      .progress-bar {
+        height: 5px;
+        background: #2e2d2d;
+        border-radius: 10px;
+        overflow: hidden;
+        position: relative;
+      }
+
+      .progress-fill {
+        height: 100%;
+        background: #3498db;
+        transition: width 0.3s ease;
+      }
+
+      .stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-top: 2rem;
+        text-align: left;
+        padding: 1rem;
+        background: #1a1a1a;
+        border-radius: 0.5rem;
+      }
+
+      .stat-item {
+        padding: 0.5rem;
+      }
+
+      .stat-label {
+        color: #666;
+        font-size: 0.8rem;
+        margin-bottom: 0.25rem;
+      }
+
+      .stat-value {
+        color: #3498db;
+        font-size: 1.1rem;
+      }
+
+      .info {
+        margin: 1rem;
+        color: #444;
+        line-height: 1.5;
+        font-size: 0.9rem;
+        text-align: left;
+        padding: 10px;
+        border-radius: 20px;
+      }
+
+      @keyframes pulse {
+        0% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.5;
+        }
+        100% {
+          opacity: 1;
+        }
+      }
+
+      .active-indicator {
+        display: inline-block;
+        width: 8px;
+        height: 8px;
+        background: #2ecc71;
+        border-radius: 50%;
+        margin-left: 8px;
+        animation: pulse 2s infinite;
+      }
+    </style>
+    <script type="module" crossorigin src="/assets/index-DBGg6K_j.js"></script>
+  </head>
+  <body>
+    <div class="clock-container">
+      <div class="info">
+        <span
+          >The Base-10 Timer is an exciting exploration of time measurement,
+          offering a fresh perspective on how we track and understand time.
+          Whether you're a developer, a time enthusiast, or just curious about
+          new concepts!</span
+        >
+      </div>
+      <div class="clock-display">
+        <span id="hours">00</span>
+        <span class="colon">:</span>
+        <span id="minutes">00</span>
+        <span class="colon">:</span>
+        <span id="seconds">00</span>
+        <span class="dot">.</span>
+        <span id="millis" class="milliseconds">000</span>
+      </div>
+
+      <div class="standard-time">
+        Standard Time: <span id="standard-time">00:00:00</span>
+        <span class="active-indicator"></span>
+      </div>
+
+      <div class="progress-container">
+        <div class="progress-bar">
+          <div id="day-progress" class="progress-fill"></div>
+        </div>
+        <div id="progress-text" style="margin-top: 0.5rem; color: #666"></div>
+      </div>
+
+      <div class="stats">
+        <div class="stat-item">
+          <div class="stat-label">Base-10 hours</div>
+          <div id="decimal-hour" class="stat-value">0.00</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-label">Standard hours</div>
+          <div id="standard-hours" class="stat-value">0.00</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-label">Day progress</div>
+          <div id="day-percentage" class="stat-value">0.00%</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-label">Time scale</div>
+          <div id="time-scale" class="stat-value">1h = 2.78 Std Hours</div>
+        </div>
+      </div>
+
+      <div class="info">
+        Base 10, Decimal or Metrics timer! in the world where time is in
+        multiples of 10:<br />
+        <br />
+        1 Second: Remains the same as the standard second.<br />
+        1 Minute: Equivalent to 100 seconds (approximately 1.7 standard
+        minutes).<br />
+        1 Hour: Equivalent to 100 minutes (approximately 2.8 standard hours).<br />
+        1 Day: Remains the same as the standard 24 hours.
+        <br />
+      </div>
+    </div>
+
+  </body>
+</html>
